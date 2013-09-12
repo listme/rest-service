@@ -39,7 +39,7 @@ var parametrize = function (obj) {
  * id: integer
  */
 var getItem = function (id) {
-  var sql = 'select content from item where id = ?';
+  var sql = 'SELECT content FROM item WHERE id = ?';
 
   db.get(sql, id, function (err, row) {
     if (err) throw Error(err);
