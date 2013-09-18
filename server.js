@@ -1,5 +1,7 @@
 var sqlite3 = require('sqlite3')
-  , dbPath = __dirname + '/listme.db'
+  , director = require('director'); 
+
+var dbPath = __dirname + '/listme.db'
   , db = new sqlite3.Database(dbPath);
 
 /**
@@ -19,7 +21,7 @@ var sqlite3 = require('sqlite3')
  *
  *    {
  *      $foo: 123,
- *      $bar: 'abc
+ *      $bar: 'abc'
  *    }
  */
 var parametrize = function (obj) {
@@ -38,12 +40,11 @@ var parametrize = function (obj) {
  *
  * id: integer
  */
-var getItem = function (id) {
+var getItem = function (id, callback) {
   var sql = 'SELECT content FROM item WHERE id = ?';
 
   db.get(sql, id, function (err, row) {
-    if (err) throw Error(err);
-    console.log(row.content)
+    callback(err, row.content);
   });
 };
 
@@ -69,7 +70,29 @@ var setItem = function (item) {
 };
 
 // Examples
-setItem({ id: 5, content: 'foo' });
-getItem(5); // foo
-setItem({ id: 5, content: 'bar' });
-getItem(5); // bar
+//setItem({ id: 5, content: 'foo' });
+//getItem(5); // foo
+//setItem({ id: 5, content: 'bar' });
+//getItem(5); // bar
+var router = new director.http.Router({
+    '/id/:id': {
+      get: function (id) {
+        var self = this;
+        getItem(id, function (err, data) {
+          if (err) throw new Error(err);
+          self.res.writeHead(200, { 'Content-Type': 'application/json' })
+          self.res.end(data);
+        });
+      }
+    }
+  });
+
+
+require('http').createServer(function (req, res) {
+  router.dispatch(req, res, function (err) {
+    if (err) {
+      res.writeHead(404);
+      res.end();
+    }
+  });
+}).listen(8080);

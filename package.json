@@ -4,6 +4,7 @@
   "description": "Webserver",
 
   "dependencies": {
-    "sqlite3": "*"
+    "sqlite3": "*",
+    "director": "*"
   }
 }
