@@ -80,7 +80,9 @@ var router = new director.http.Router({
         var self = this;
         getItem(id, function (err, data) {
           if (err) throw new Error(err);
-          self.res.writeHead(200, { 'Content-Type': 'application/json' })
+          self.res.writeHead(200, {
+            'Content-Type': 'application/json; charset=utf-8'
+          });
           self.res.end(data);
         });
       }
