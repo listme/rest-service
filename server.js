@@ -14,7 +14,7 @@ var dbPath = __dirname + '/listme.db'
  *
  * # params
  *
- * **obj:** object
+ * *   **obj:** object
  *
  * # usage
  * 
@@ -49,8 +49,8 @@ var parametrize = function (obj) {
  *
  * # params
  *
- * **id:** integer
- * **callback:** function (err, data)
+ * *   **id:** integer
+ * *   **callback:** function (err, data)
  *
  * # usage
  *
@@ -73,12 +73,12 @@ var getItem = function (id, callback) {
  *
  * # params
  *
- * **item:**
+ * *   **item:**
  *
- *     {
- *      id: integer,
- *      content: text
- *     }
+ *         {
+ *          id: integer,
+ *          content: text
+ *         }
  *
  * if no `item.id` is supplied, a new item is created
  *
