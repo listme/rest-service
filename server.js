@@ -14,7 +14,7 @@ var dbPath = __dirname + '/listme.db'
  *
  * # params
  *
- * *   **obj:** object
+ * *   **obj:** `object`
  *
  * # usage
  * 
@@ -49,8 +49,8 @@ var parametrize = function (obj) {
  *
  * # params
  *
- * *   **id:** integer
- * *   **callback:** function (err, data)
+ * *   **id:** `integer`
+ * *   **callback:** `function (err, data)`
  *
  * # usage
  *
