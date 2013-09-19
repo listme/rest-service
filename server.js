@@ -1,44 +1,62 @@
-var sqlite3 = require('sqlite3')
+var http = require('http')
+  , sqlite = require('sqlite3')
   , director = require('director'); 
 
 var dbPath = __dirname + '/listme.db'
-  , db = new sqlite3.Database(dbPath);
+  , db = new sqlite.Database(dbPath)
+  , router = new director.http.Router();
 
 /**
- * parametrize (obj) -> obj
+ * # parametrize (obj) -> obj
  *
- * create a variation of the object received by adding '$' at the beginning of
+ * creates a variation of the object received by adding '$' at the beginning of
  * every property name so it can be passed as a placeholder supplier
  *
- * Example: if an object like the following is passed to this function
+ * # params
+ *
+ * **obj:** object
+ *
+ * # usage
  * 
- *    {
- *      foo: 123,
- *      bar: 'abc'
- *    }
+ *     parametrize({
+ *       foo: 123,
+ *       bar: 'abc'
+ *     })
  *
- * is returned a new object:
+ * returns
  *
- *    {
- *      $foo: 123,
- *      $bar: 'abc'
- *    }
+ *     {
+ *       $foo: 123,
+ *       $bar: 'abc'
+ *     }
  */
 var parametrize = function (obj) {
-  var $obj = {};
+  var ret = {};
+
   for (var prop in obj) {
-    if (obj.hasOwnProperty(prop)) $obj['$' + prop] = obj[prop];
+    if (obj.hasOwnProperty(prop)) {
+      ret['$' + prop] = obj[prop];
+    }
   }
 
-  return $obj;
+  return ret;
 };
 
 /**
- * getItem (id)
+ * # getItem (id, callback)
  *
- * outputs the content of the item with the identifier received
+ * gets the content of the specified item and returns it to a callback
  *
- * id: integer
+ * # params
+ *
+ * **id:** integer
+ * **callback:** function (err, data)
+ *
+ * # usage
+ *
+ *     getItem(5, function (err, data) {
+ *       console.log(data);
+ *     });
  */
 var getItem = function (id, callback) {
   var sql = 'SELECT content FROM item WHERE id = ?';
@@ -49,48 +67,58 @@ var getItem = function (id, callback) {
 };
 
 /**
- * setItem (item)
+ * # setItem (item)
  *
  * saves/updates the content of the item received
  *
- * item: {
- *  id: integer,
- *  content: text
- * }
+ * # params
  *
- * if no item.id is supplied, a new item is created
+ * **item:**
+ *
+ *     {
+ *      id: integer,
+ *      content: text
+ *     }
+ *
+ * if no `item.id` is supplied, a new item is created
+ *
+ * # usage
+ *
+ *     setItem({ id: 5, content: 'foo' });
  */
 var setItem = function (item) {
   var sql = '';
 
-  if (item.id) sql = 'UPDATE item SET content = $content WHERE id = $id;'; 
-  else sql = 'INSERT INTO item (content) VALUES ($content);';
+  if (item.id) {
+    sql = 'UPDATE item SET content = $content WHERE id = $id;'; 
+  } else {
+    sql = 'INSERT INTO item (content) VALUES ($content);';
+  }
 
   db.run(sql, parametrize(item));
 };
 
-// Examples
-//setItem({ id: 5, content: 'foo' });
-//getItem(5); // foo
-//setItem({ id: 5, content: 'bar' });
-//getItem(5); // bar
-var router = new director.http.Router({
-    '/id/:id': {
-      get: function (id) {
-        var self = this;
-        getItem(id, function (err, data) {
-          if (err) throw new Error(err);
-          self.res.writeHead(200, {
-            'Content-Type': 'application/json; charset=utf-8'
-          });
-          self.res.end(data);
-        });
-      }
+/**
+ * # Server
+ */
+
+router.get('/id/:id', function (id) {
+  var self = this;
+
+  getItem(id, function (err, data) {
+    if (err) {
+      throw new Error(err);
     }
+
+    self.res.writeHead(200, {
+      'Content-Type': 'application/json; charset=utf-8'
+    });
+
+    self.res.end(data);
   });
+});
 
-
-require('http').createServer(function (req, res) {
+http.createServer(function (req, res) {
   router.dispatch(req, res, function (err) {
     if (err) {
       res.writeHead(404);
