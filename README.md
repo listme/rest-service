@@ -12,6 +12,6 @@ Devuelve el contenido del item `:id`
 
 Actualiza el contenido del item `:id`
 
-## `POST /item/new`
+## `PUT /item/`
 
 Inserta un nuevo item
