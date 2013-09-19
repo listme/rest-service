@@ -102,7 +102,7 @@ var setItem = function (item) {
  * # Server
  */
 
-router.get('/id/:id', function (id) {
+router.get('/item/:id', function (id) {
   var self = this;
 
   getItem(id, function (err, data) {
