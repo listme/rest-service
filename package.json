@@ -5,6 +5,7 @@
 
   "dependencies": {
     "sqlite3": "*",
-    "director": "*"
+    "director": "*",
+    "ini": "*"
   }
 }

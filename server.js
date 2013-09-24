@@ -1,9 +1,20 @@
 var http = require('http')
   , sqlite = require('sqlite3')
-  , director = require('director'); 
+  , director = require('director')
+  , fs = require('fs')
+  , ini = require('ini');
 
-var dbPath = __dirname + '/listme.db'
-  , db = new sqlite.Database(dbPath)
+/**
+* # Access to database path from ini file (config.ini)
+*
+**/
+var dbPath = function (){
+	var config = ini.parse(fs.readFileSync('config.ini', 'utf-8'))
+		return config.Database.dbPath;
+};
+
+
+var db = new sqlite.Database(dbPath())
   , router = new director.http.Router();
 
 /**
