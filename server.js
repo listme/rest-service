@@ -1,21 +1,21 @@
 var http = require('http')
-  , sqlite = require('sqlite3')
-  , director = require('director')
-  , fs = require('fs')
-  , ini = require('ini');
+, sqlite = require('sqlite3')
+, director = require('director')
+, fs = require('fs')
+, ini = require('ini');
 
 /**
-* # Access to database path from ini file (config.ini)
-*
-**/
+ * # Access to database path from ini file (config.ini)
+ *
+ **/
 var dbPath = function (){
-	var config = ini.parse(fs.readFileSync('config.ini', 'utf-8'))
-		return config.Database.dbPath;
+    var config = ini.parse(fs.readFileSync('config.ini', 'utf-8'))
+    return config.Database.dbPath;
 };
 
 
 var db = new sqlite.Database(dbPath())
-  , router = new director.http.Router();
+, router = new director.http.Router();
 
 /**
  * # parametrize (obj) -> obj
@@ -42,15 +42,15 @@ var db = new sqlite.Database(dbPath())
  *     }
  */
 var parametrize = function (obj) {
-  var ret = {};
+    var ret = {};
 
-  for (var prop in obj) {
-    if (obj.hasOwnProperty(prop)) {
-      ret['$' + prop] = obj[prop];
+    for (var prop in obj) {
+        if (obj.hasOwnProperty(prop)) {
+            ret['$' + prop] = obj[prop];
+        }
     }
-  }
 
-  return ret;
+    return ret;
 };
 
 /**
@@ -70,11 +70,11 @@ var parametrize = function (obj) {
  *     });
  */
 var getItem = function (id, callback) {
-  var sql = 'SELECT content FROM item WHERE id = ?';
+    var sql = 'SELECT content FROM item WHERE id = ?';
 
-  db.get(sql, id, function (err, row) {
-    callback(err, row.content);
-  });
+    db.get(sql, id, function (err, row) {
+        callback(err, row.content);
+    });
 };
 
 /**
@@ -98,15 +98,15 @@ var getItem = function (id, callback) {
  *     setItem({ id: 5, content: 'foo' });
  */
 var setItem = function (item) {
-  var sql = '';
+    var sql = '';
 
-  if (item.id) {
-    sql = 'UPDATE item SET content = $content WHERE id = $id;'; 
-  } else {
-    sql = 'INSERT INTO item (content) VALUES ($content);';
-  }
+    if (item.id) {
+        sql = 'UPDATE item SET content = $content WHERE id = $id;'; 
+    } else {
+        sql = 'INSERT INTO item (content) VALUES ($content);';
+    }
 
-  db.run(sql, parametrize(item));
+    db.run(sql, parametrize(item));
 };
 
 /**
@@ -114,26 +114,56 @@ var setItem = function (item) {
  */
 
 router.get('/item/:id', function (id) {
-  var self = this;
+    var self = this;
 
-  getItem(id, function (err, data) {
-    if (err) {
-      throw new Error(err);
-    }
+    getItem(id, function (err, data) {
+        if (err) {
+            throw new Error(err);
+        }
+
+        self.res.writeHead(200, {
+            'Content-Type': 'application/json; charset=utf-8'
+        });
+
+        self.res.end(data);
+    });
+});
+
+router.post('/item', { stream: true }, function () {
+    var self = this;
 
     self.res.writeHead(200, {
-      'Content-Type': 'application/json; charset=utf-8'
+        'Content-Type': 'application/json; charset=utf-8'
     });
 
-    self.res.end(data);
-  });
+    self.req.pipe(self.res);
+});
+
+router.put('/item/:id', { stream: true }, function (id) {
+    var self = this;
+
+    self.res.writeHead(200, {
+        'Content-Type': 'application/json; charset=utf-8'
+    });
+
+    self.req.pipe(self.res);
+});
+
+router.delete('/item/:id', function (id) {
+    var self = this;
+
+    self.res.writeHead(200, {
+        'Content-Type': 'application/json; charset=utf-8'
+    });
+
+    self.res.end('del ' + id);
 });
 
 http.createServer(function (req, res) {
-  router.dispatch(req, res, function (err) {
-    if (err) {
-      res.writeHead(404);
-      res.end();
-    }
-  });
+    router.dispatch(req, res, function (err) {
+        if (err) {
+            res.writeHead(404);
+            res.end();
+        }
+    });
 }).listen(8080);
