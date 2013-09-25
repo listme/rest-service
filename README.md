@@ -4,7 +4,7 @@ Servicio REST de gestión de listas
 
 # API
 
-El API se puede obtener como colección [postman][1] en [este link][2]
+Colección [postman][1] disponible: http://www.getpostman.com/collections/4a2358ef4b59363651ab
 
 ## `GET /item/:id`
 
@@ -23,4 +23,3 @@ Actualiza el contenido del item `:id`
 Elimina el item `:id`
 
 [1]: http://www.getpostman.com/
-[2]: https://www.getpostman.com/collections/4a2358ef4b59363651ab
