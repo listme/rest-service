@@ -1,4 +1,4 @@
-# webserver
+# REST Service
 
 Servicio REST de gestión de listas
 
